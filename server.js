@@ -1,13 +1,13 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
 const port = 3000;
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
 
 // Database setup
 const db = new sqlite3.Database('./database.db', (err) => {
@@ -20,6 +20,11 @@ const db = new sqlite3.Database('./database.db', (err) => {
 
 // Create users table if it doesn't exist
 db.run('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, email TEXT, password TEXT)');
+
+// Serve the login and registration form
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));  // تقديم ملف index.html مباشرة من المجلد الجذري
+});
 
 // Register route
 app.post('/register', (req, res) => {
@@ -53,11 +58,6 @@ app.post('/login', (req, res) => {
       res.send('Invalid email or password.');
     }
   });
-});
-
-// Serve the login and registration form
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
 });
 
 app.listen(port, () => {
